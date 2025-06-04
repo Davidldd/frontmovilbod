@@ -14,7 +14,7 @@
         <div class="offcanvas-body">
           <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
             <li class="nav-item">
-              <a class="nav-link" href="#"><i class="bi bi-graph-down"></i> Dashboard</a>
+              <a class="nav-link" href="/dashboard"><i class="bi bi-graph-down"></i> Dashboard</a>
             </li>
 
             <li class="nav-item dropdown">
@@ -33,10 +33,10 @@
                 <i class="bi bi-shuffle"></i> Movimientos
               </a>
               <ul class="dropdown-menu dropdown-menu-dark">
-                <li><a class="dropdown-item" href="#">Registro de entradas</a></li>
-                <li><a class="dropdown-item" href="#">Registro de salidas</a></li>
-                <li><a class="dropdown-item" href="#">Traslados entre almacenes</a></li>
-                <li><a class="dropdown-item" href="#">Ajustes de inventario</a></li>
+                <li><a class="dropdown-item" href="/inventory/input">Registro de entradas</a></li>
+                <li><a class="dropdown-item" href="/inventory/output">Registro de salidas</a></li>
+                <li><a class="dropdown-item" href="/inventory/transfer">Traslados entre almacenes</a></li>
+                <li><a class="dropdown-item" href="/inventory/adjustment">Ajustes de inventario</a></li>
               </ul>
             </li>
 
