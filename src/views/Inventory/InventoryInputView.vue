@@ -172,7 +172,7 @@ const goToPage = (page) => {
 </script>
 
 <template>
-  <DashboardLayout />
+  <DashboardLayout>
     <div class="container-fluid">
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
@@ -385,18 +385,18 @@ const goToPage = (page) => {
                 <div class="col-md-4">
                   <table class="table table-sm">
                     <tbody>
-                      <tr>
-                        <th>Subtotal:</th>
-                        <td class="text-end">${{ calculateTotal().subtotal }}</td>
-                      </tr>
-                      <tr>
-                        <th>IVA (19%):</th>
-                        <td class="text-end">${{ calculateTotal().tax }}</td>
-                      </tr>
-                      <tr>
-                        <th>Total:</th>
-                        <td class="text-end">${{ calculateTotal().total }}</td>
-                      </tr>
+                    <tr>
+                      <th>Subtotal:</th>
+                      <td class="text-end">${{ calculateTotal().subtotal }}</td>
+                    </tr>
+                    <tr>
+                      <th>IVA (19%):</th>
+                      <td class="text-end">${{ calculateTotal().tax }}</td>
+                    </tr>
+                    <tr>
+                      <th>Total:</th>
+                      <td class="text-end">${{ calculateTotal().total }}</td>
+                    </tr>
                     </tbody>
                   </table>
                 </div>
@@ -419,5 +419,6 @@ const goToPage = (page) => {
         </div>
       </div>
     </div>
+  </DashboardLayout>
 </template>
 

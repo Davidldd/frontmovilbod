@@ -218,7 +218,7 @@ const goToPage = (page) => {
 </script>
 
 <template>
-  <DashboardLayout />
+  <DashboardLayout>
     <div class="container-fluid">
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
@@ -512,6 +512,6 @@ const goToPage = (page) => {
         </div>
       </div>
     </div>
-  
+  </DashboardLayout>
 </template>
 

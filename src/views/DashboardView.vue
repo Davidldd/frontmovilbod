@@ -78,7 +78,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <DashboardLayout />
+  <DashboardLayout>
   <div class="min-vh-100 bg-light mt-5 pd-5">
     <!-- Loading Spinner -->
     <div v-if="isLoading" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white">
@@ -246,5 +246,5 @@ onMounted(async () => {
       </div>
     </div>
   </div>
-
+    </DashboardLayout>
 </template>

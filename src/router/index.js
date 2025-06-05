@@ -6,9 +6,9 @@ import InventoryInputView from '../views/Inventory/InventoryInputView.vue';
 import InventoryOutputView from '../views/Inventory/InventoryOutputView.vue';
 import InventoryTransferView from '../views/Inventory/InventoryTransferView.vue';
 import InventoryAdjustmentView from '../views/Inventory/InventoryAdjustmentView.vue';
-import CatalogProductsView from '../views/Catalog/CatalogProductsView.vue';
-import CatalogCategoriesView from '../views/Catalog/CatalogCategoriesView.vue';
-import CatalogProductsNewView from '../views/Catalog/CatalogProductsNewView.vue';
+import CatalogProductsView from '../views/catalog/CatalogProductsView.vue';
+import CatalogCategoriesView from '../views/catalog/CatalogCategoriesView.vue';
+import CatalogProductsNewView from '../views/catalog/CatalogProductsNewView.vue';
 import DashboardView from "../views/DashboardView.vue";
 
 const routes = [
