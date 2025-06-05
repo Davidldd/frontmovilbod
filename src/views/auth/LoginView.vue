@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../stores/authStore'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 // Form data
 const username = ref('')
@@ -43,8 +45,22 @@ const handleLogin = async (e) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // In a real app, here you would make an API call to authenticate
-    console.log('Login attempt:', { username: username.value, password: password.value, rememberMe: rememberMe.value })
+    // Mock user data based on username
+    let userData = {
+      name: username.value,
+      email: `${username.value}@movilbod.com`,
+      role: 'user'
+    }
+
+    // Set root role for admin user
+    if (username.value.toLowerCase() === 'admin' || username.value.toLowerCase() === 'root') {
+      userData.role = 'root'
+    }
+
+    // Login user
+    authStore.login(userData)
+
+    console.log('Login successful:', userData)
 
     // Redirect to dashboard
     router.push('/dashboard')
@@ -73,13 +89,22 @@ const goToForgotPassword = () => {
       <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
         <div class="auth-card p-4">
           <div class="text-center mb-4">
-            <h1 class="brand-title mb-0">MovilBod</h1>
-            <p class="auth-subtitle">Gestión de Inventarios</p>
+            <h1 class="brand-title mb-0">MovilBod ERP</h1>
+            <p class="auth-subtitle">Sistema de Gestión Empresarial</p>
           </div>
 
           <div class="card shadow-sm">
             <div class="card-body p-4">
               <h2 class="fs-4 card-title mb-4 text-center">Iniciar Sesión</h2>
+
+              <!-- Demo Credentials Info -->
+              <div class="alert alert-info mb-4">
+                <small>
+                  <strong>Credenciales de prueba:</strong><br>
+                  Usuario: <code>admin</code> (rol root)<br>
+                  Contraseña: <code>123456</code>
+                </small>
+              </div>
 
               <form @submit="handleLogin">
                 <!-- Username -->
@@ -169,7 +194,7 @@ const goToForgotPassword = () => {
 
           <div class="text-center mt-4">
             <small class="text-muted">
-              &copy; {{ new Date().getFullYear() }} MovilBod. Todos los derechos reservados.
+              &copy; {{ new Date().getFullYear() }} MovilBod ERP. Todos los derechos reservados.
             </small>
           </div>
         </div>
@@ -178,10 +203,45 @@ const goToForgotPassword = () => {
       <!-- Right side - Image -->
       <div class="col-md-6 d-none d-md-block inventory-bg position-relative">
         <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
-          <h2 class="display-5 fw-bold">Bienvenido a MovilBod</h2>
-          <p class="lead">La solución integral para gestión de inventarios</p>
+          <h2 class="display-5 fw-bold">Bienvenido a MovilBod ERP</h2>
+          <p class="lead">La solución integral para gestión empresarial</p>
+          <div class="features-list mt-4">
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <span>CRM Avanzado</span>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <span>Control de Inventarios</span>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <span>Facturación Electrónica</span>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <span>Reportes en Tiempo Real</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.features-list {
+  text-align: left;
+  display: inline-block;
+}
+
+.feature-item {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.feature-item i {
+  color: #ffd700;
+}
+</style>

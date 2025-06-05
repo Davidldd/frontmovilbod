@@ -1,0 +1,17 @@
+[33mcommit 0ba67e06d7b2583350f45cca78511012406754b6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: David Duarte <david.leo.mc2012@gmail.com>
+Date:   Wed Jun 4 20:36:58 2025 -0500
+
+    Tercer Cargue, se modifica productos y movimientos
+
+[33mcommit dce3df3ffe3df7c8530d5c6d44c644557eef613e[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: David Duarte <david.leo.mc2012@gmail.com>
+Date:   Tue Jun 3 23:22:17 2025 -0500
+
+    Se crean nuevas vistas de inventario y Catalogo
+
+[33mcommit 3c19d2b0842930543592ef72692c8107ef14bf5e[m
+Author: David Duarte <david.leo.mc2012@gmail.com>
+Date:   Fri May 30 21:16:29 2025 -0500
+
+    Primer Cargue
