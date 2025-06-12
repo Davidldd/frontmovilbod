@@ -251,7 +251,7 @@
               <h5 class="card-title mb-4">Imagen del Producto</h5>
               <div class="text-center mb-3">
                 <img
-                    :src="productForm.image || 'https://via.placeholder.com/300'"
+                    :src="productForm.image || generateProductPlaceholder(productForm.name || 'Nuevo Producto')"
                     class="img-fluid rounded"
                     alt="Product Image"
                     style="max-height: 200px; object-fit: contain;"
@@ -303,13 +303,51 @@
         </div>
       </div>
     </div>
-    </DashboardLayout>
+  </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import DashboardLayout from '../../components/DashboardLayout.vue'
+
+// Función para generar un placeholder para imágenes de productos
+const generateProductPlaceholder = (productName) => {
+  // Determinar el color basado en el nombre del producto
+  const colors = [
+    '#4f46e5', '#0891b2', '#7c3aed', '#0d9488', '#c026d3',
+    '#059669', '#db2777', '#65a30d', '#9333ea', '#0284c7'
+  ];
+  
+  const colorIndex = productName ? productName.length % colors.length : 0;
+  const bgColor = colors[colorIndex];
+  
+  // Crear un SVG con el nombre del producto o una imagen genérica
+  const displayText = productName ? productName.substring(0, 2).toUpperCase() : 'PR';
+  
+  // Crear el SVG
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+      <rect width="300" height="300" fill="${bgColor}" />
+      <text x="150" y="150" font-family="Arial" font-size="24" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">
+        ${displayText}
+      </text>
+      <text x="150" y="190" font-family="Arial" font-size="16" fill="white" text-anchor="middle" dominant-baseline="middle">
+        ${productName || 'Producto'}
+      </text>
+      <g fill="white" opacity="0.3">
+        <rect x="75" y="75" width="150" height="10" rx="5" />
+        <rect x="75" y="215" width="150" height="10" rx="5" />
+        <rect x="75" y="95" width="50" height="110" rx="5" />
+        <rect x="135" y="95" width="30" height="110" rx="5" />
+        <rect x="175" y="95" width="50" height="110" rx="5" />
+      </g>
+    </svg>
+  `;
+  
+  // Convertir a data URI
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+};
 
 const router = useRouter()
 const route = useRoute()

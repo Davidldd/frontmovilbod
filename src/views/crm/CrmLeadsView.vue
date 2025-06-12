@@ -153,12 +153,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="lead in filteredLeads" :key="lead.id">
+                <tr v-for="lead in paginatedLeads" :key="lead.id">
                   <td>
                     <div class="d-flex align-items-center">
-                      <div class="lead-avatar me-3">
-                        {{ getInitials(lead.name) }}
-                      </div>
+                      <img :src="lead.avatar" class="lead-avatar-img me-3" :alt="lead.name">
                       <div>
                         <h6 class="mb-0">{{ lead.name }}</h6>
                         <small class="text-muted">{{ lead.email }}</small>
@@ -338,10 +336,54 @@ const leadSources = ref([
   'Publicidad Online'
 ])
 
+// Generate user avatar function
+const generateUserAvatar = (name) => {
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  const colors = [
+    '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', 
+    '#EF4444', '#06B6D4', '#84CC16', '#F97316',
+    '#EC4899', '#6366F1'
+  ]
+  const colorIndex = name.length % colors.length
+  const bgColor = colors[colorIndex]
+  
+  return `data:image/svg+xml,${encodeURIComponent(`
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="${bgColor}"/>
+      <text x="16" y="20" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="600">${initials}</text>
+    </svg>
+  `)}`
+}
+
+// Generate lead avatar function
+const generateLeadAvatar = (name) => {
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  const colors = [
+    '#667eea', '#764ba2', '#f093fb', '#f5576c',
+    '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+    '#ffecd2', '#fcb69f', '#a8edea', '#fed6e3'
+  ]
+  const colorIndex = name.length % colors.length
+  const bgColor = colors[colorIndex]
+  
+  return `data:image/svg+xml,${encodeURIComponent(`
+    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad${name.replace(/\s/g, '')}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${bgColor};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${bgColor}dd;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <circle cx="20" cy="20" r="20" fill="url(#grad${name.replace(/\s/g, '')})"/>
+      <text x="20" y="25" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="600">${initials}</text>
+    </svg>
+  `)}`
+}
+
 const users = ref([
-  { id: 1, name: 'Juan Pérez', avatar: 'https://via.placeholder.com/32' },
-  { id: 2, name: 'María García', avatar: 'https://via.placeholder.com/32' },
-  { id: 3, name: 'Carlos López', avatar: 'https://via.placeholder.com/32' }
+  { id: 1, name: 'Juan Pérez', avatar: generateUserAvatar('Juan Pérez') },
+  { id: 2, name: 'María García', avatar: generateUserAvatar('María García') },
+  { id: 3, name: 'Carlos López', avatar: generateUserAvatar('Carlos López') }
 ])
 
 const leads = ref([
@@ -356,7 +398,8 @@ const leads = ref([
     status: 'qualified',
     assignedTo: 1,
     createdAt: '2024-02-20',
-    notes: 'Interesada en soluciones de automatización'
+    notes: 'Interesada en soluciones de automatización',
+    avatar: generateLeadAvatar('Ana Rodríguez')
   },
   {
     id: 2,
@@ -369,7 +412,8 @@ const leads = ref([
     status: 'contacted',
     assignedTo: 2,
     createdAt: '2024-02-19',
-    notes: 'Requiere más información sobre precios'
+    notes: 'Requiere más información sobre precios',
+    avatar: generateLeadAvatar('Roberto Silva')
   },
   {
     id: 3,
@@ -382,7 +426,36 @@ const leads = ref([
     status: 'new',
     assignedTo: 3,
     createdAt: '2024-02-18',
-    notes: 'Lead nuevo desde campaña de email'
+    notes: 'Lead nuevo desde campaña de email',
+    avatar: generateLeadAvatar('Laura Martínez')
+  },
+  {
+    id: 4,
+    name: 'Diego Fernández',
+    email: 'diego.fernandez@email.com',
+    phone: '+1 234 567 8904',
+    company: 'Global Industries',
+    source: 'Referido',
+    score: 92,
+    status: 'qualified',
+    assignedTo: 1,
+    createdAt: '2024-02-17',
+    notes: 'Cliente potencial de alto valor',
+    avatar: generateLeadAvatar('Diego Fernández')
+  },
+  {
+    id: 5,
+    name: 'Carmen Ruiz',
+    email: 'carmen.ruiz@email.com',
+    phone: '+1 234 567 8905',
+    company: 'Digital Marketing Co',
+    source: 'Evento',
+    score: 73,
+    status: 'contacted',
+    assignedTo: 2,
+    createdAt: '2024-02-16',
+    notes: 'Conocida en evento de marketing digital',
+    avatar: generateLeadAvatar('Carmen Ruiz')
   }
 ])
 
@@ -461,6 +534,12 @@ const filteredLeads = computed(() => {
   return filtered
 })
 
+const paginatedLeads = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filteredLeads.value.slice(start, end)
+})
+
 const totalLeads = computed(() => filteredLeads.value.length)
 const totalPages = computed(() => Math.ceil(totalLeads.value / itemsPerPage))
 const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage)
@@ -516,7 +595,7 @@ const getUserName = (userId) => {
 
 const getUserAvatar = (userId) => {
   const user = users.value.find(u => u.id === userId)
-  return user ? user.avatar : 'https://via.placeholder.com/32'
+  return user ? user.avatar : generateUserAvatar('Usuario')
 }
 
 const openNewLeadModal = () => {
@@ -641,17 +720,20 @@ const goToPage = (page) => {
   opacity: 0.7;
 }
 
-.lead-avatar {
+.lead-avatar-img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+}
+
+.user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
 }
 
 .score-bar {
@@ -673,12 +755,21 @@ const goToPage = (page) => {
   color: #4a5568;
 }
 
-.user-avatar {
-  width: 24px;
-  height: 24px;
+/* Remove or comment out the old .lead-avatar class */
+/*
+.lead-avatar {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  object-fit: cover;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
 }
+*/
 
 .table th {
   font-weight: 600;

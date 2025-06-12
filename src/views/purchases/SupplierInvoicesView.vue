@@ -8,7 +8,7 @@
           <p class="text-muted mb-0">Gestión de facturas recibidas de proveedores</p>
         </div>
         <button class="btn btn-primary" @click="showRegisterInvoiceModal">
-          <i class="fas fa-plus"></i> Registrar Factura
+          <i class="bi bi-plus"></i> Registrar Factura
         </button>
       </div>
 
@@ -66,7 +66,7 @@
               <div class="form-group">
                 <label class="form-label">&nbsp;</label>
                 <button class="btn btn-outline-secondary w-100" @click="clearFilters">
-                  <i class="fas fa-times"></i>
+                  <i class="bi bi-x"></i>
                 </button>
               </div>
             </div>
@@ -110,33 +110,34 @@
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-primary" @click="viewInvoice(invoice.id)">
-                        <i class="fas fa-eye"></i>
+                      <button class="btn btn-outline-primary" @click="viewInvoice(invoice.id)" title="Ver">
+                        <i class="bi bi-eye"></i>
                       </button>
                       <button 
                         class="btn btn-outline-success" 
                         @click="registerPayment(invoice.id)"
                         v-if="invoice.balance > 0"
+                        title="Registrar Pago"
                       >
-                        <i class="fas fa-dollar-sign"></i>
+                        <i class="bi bi-currency-dollar"></i>
                       </button>
                       <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                          <i class="fas fa-ellipsis-v"></i>
+                          <i class="bi bi-three-dots-vertical"></i>
                         </button>
                         <ul class="dropdown-menu">
                           <li><a class="dropdown-item" href="#" @click="editInvoice(invoice.id)">
-                            <i class="fas fa-edit"></i> Editar
+                            <i class="bi bi-pencil"></i> Editar
                           </a></li>
                           <li><a class="dropdown-item" href="#" @click="printInvoice(invoice.id)">
-                            <i class="fas fa-print"></i> Imprimir
+                            <i class="bi bi-printer"></i> Imprimir
                           </a></li>
                           <li><a class="dropdown-item" href="#" @click="generateAccountingEntry(invoice.id)">
-                            <i class="fas fa-calculator"></i> Generar Asiento Contable
+                            <i class="bi bi-calculator"></i> Generar Asiento Contable
                           </a></li>
                           <li><hr class="dropdown-divider"></li>
                           <li><a class="dropdown-item text-danger" href="#" @click="cancelInvoice(invoice.id)">
-                            <i class="fas fa-ban"></i> Anular
+                            <i class="bi bi-x-circle"></i> Anular
                           </a></li>
                         </ul>
                       </div>
@@ -274,7 +275,7 @@
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Saldo Pendiente</label>
-                  <input type="text" class="form-control" :value="formatCurrency(selectedInvoice?.balance)" readonly>
+                  <input type="text" class="form-control" :value="selectedInvoice ? formatCurrency(selectedInvoice.balance) : '$0'" readonly>
                 </div>
                 <div class="row mb-3">
                   <div class="col-md-6">
@@ -446,6 +447,9 @@ export default {
       return new Date(date).toLocaleDateString('es-CO')
     },
     formatCurrency(amount) {
+      if (amount === undefined || amount === null) {
+        return '$0'
+      }
       return '$' + amount.toLocaleString()
     },
     getPaymentStatusBadgeClass(status) {
@@ -469,8 +473,13 @@ export default {
         total: 0,
         notes: ''
       }
-      const modal = new bootstrap.Modal(document.getElementById('registerInvoiceModal'))
-      modal.show()
+      
+      // Usar Bootstrap 5 API
+      const modalElement = document.getElementById('registerInvoiceModal')
+      if (modalElement) {
+        const modal = new window.bootstrap.Modal(modalElement)
+        modal.show()
+      }
     },
     calculateTotal() {
       const subtotal = parseFloat(this.newInvoice.subtotal) || 0
@@ -501,8 +510,13 @@ export default {
       alert('Factura registrada exitosamente')
       
       // Cerrar modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('registerInvoiceModal'))
-      modal.hide()
+      const modalElement = document.getElementById('registerInvoiceModal')
+      if (modalElement) {
+        const modal = window.bootstrap.Modal.getInstance(modalElement)
+        if (modal) {
+          modal.hide()
+        }
+      }
     },
     getSupplierName(supplierId) {
       const suppliers = {
@@ -513,13 +527,18 @@ export default {
       return suppliers[supplierId] || 'Proveedor Desconocido'
     },
     viewInvoice(id) {
-      this.$router.push(`/purchases/invoices/${id}`)
+      this.$router.push(`/purchases/invoice/${id}`)
     },
     editInvoice(id) {
-      this.$router.push(`/purchases/invoices/${id}/edit`)
+      this.$router.push(`/purchases/invoice/${id}/edit`)
     },
     registerPayment(id) {
       this.selectedInvoice = this.invoices.find(i => i.id === id)
+      if (!this.selectedInvoice) {
+        alert('Factura no encontrada')
+        return
+      }
+      
       this.payment = {
         amount: this.selectedInvoice.balance,
         date: new Date().toISOString().split('T')[0],
@@ -527,8 +546,12 @@ export default {
         reference: '',
         notes: ''
       }
-      const modal = new bootstrap.Modal(document.getElementById('paymentModal'))
-      modal.show()
+      
+      const modalElement = document.getElementById('paymentModal')
+      if (modalElement) {
+        const modal = new window.bootstrap.Modal(modalElement)
+        modal.show()
+      }
     },
     savePayment() {
       // Validaciones
@@ -555,8 +578,13 @@ export default {
       alert('Pago registrado exitosamente')
       
       // Cerrar modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'))
-      modal.hide()
+      const modalElement = document.getElementById('paymentModal')
+      if (modalElement) {
+        const modal = window.bootstrap.Modal.getInstance(modalElement)
+        if (modal) {
+          modal.hide()
+        }
+      }
     },
     printInvoice(id) {
       console.log('Imprimir factura:', id)

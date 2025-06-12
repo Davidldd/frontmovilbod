@@ -233,6 +233,18 @@
 import { ref, computed } from 'vue'
 import DashboardLayout from '../../components/DashboardLayout.vue'
 
+// Generate company logo placeholder
+const generateCompanyLogo = (companyName) => {
+  const initials = companyName.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()
+  const colors = [
+    '#6B46C1', '#059669', '#DC2626', '#D97706', '#7C3AED', 
+    '#0891B2', '#BE185D', '#4338CA', '#16A34A', '#EA580C'
+  ]
+  const colorIndex = companyName.length % colors.length
+  const color = colors[colorIndex]
+  
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Crect width='60' height='60' fill='${encodeURIComponent(color)}'/%3E%3Ctext x='30' y='38' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-size='20' font-weight='600'%3E${initials}%3C/text%3E%3C/svg%3E`
+}
 
 // Mock data
 const industries = ref([
@@ -258,7 +270,7 @@ const companies = ref([
     revenue: 5000000,
     description: 'Empresa líder en soluciones tecnológicas empresariales',
     website: 'https://techcorp.com',
-    logo: 'https://via.placeholder.com/60',
+    logo: generateCompanyLogo('TechCorp Solutions'),
     contactsCount: 15,
     opportunitiesCount: 8,
     createdAt: '2024-01-15'
@@ -274,7 +286,7 @@ const companies = ref([
     revenue: 2500000,
     description: 'Especialistas en manufactura de componentes industriales',
     website: 'https://mfgplus.com',
-    logo: 'https://via.placeholder.com/60',
+    logo: generateCompanyLogo('Manufacturing Plus'),
     contactsCount: 8,
     opportunitiesCount: 3,
     createdAt: '2024-01-20'
@@ -290,7 +302,7 @@ const companies = ref([
     revenue: 800000,
     description: 'Innovaciones en tecnología médica y dispositivos',
     website: 'https://healthinno.com',
-    logo: 'https://via.placeholder.com/60',
+    logo: generateCompanyLogo('HealthCare Innovations'),
     contactsCount: 5,
     opportunitiesCount: 2,
     createdAt: '2024-02-01'
@@ -420,7 +432,7 @@ const saveCompany = async () => {
       companies.value.push({
         id: companies.value.length + 1,
         ...companyForm.value,
-        logo: 'https://via.placeholder.com/60',
+        logo: generateCompanyLogo(companyForm.value.name),
         contactsCount: 0,
         opportunitiesCount: 0,
         createdAt: new Date().toISOString().split('T')[0]

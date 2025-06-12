@@ -217,7 +217,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary" :disabled="isSubmitting" @click="saveContact">
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
               <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
               {{ editingContact ? 'Guardar Cambios' : 'Crear Contacto' }}
             </button>
@@ -230,8 +230,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import DashboardLayout from '../../components/DashboardLayout.vue'
 
+const router = useRouter()
 
 // Mock data
 const companies = ref([
@@ -251,7 +253,7 @@ const contacts = ref([
     companyId: 1,
     status: 'active',
     lastActivity: '2024-02-20',
-    avatar: 'https://via.placeholder.com/40',
+    avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%236B46C1"/%3E%3Ctext x="20" y="25" text-anchor="middle" fill="white" font-family="Arial" font-size="14"%3EU%3C/text%3E%3C/svg%3E',
     notes: ''
   },
   {
@@ -264,7 +266,7 @@ const contacts = ref([
     companyId: 2,
     status: 'prospect',
     lastActivity: '2024-02-19',
-    avatar: 'https://via.placeholder.com/40',
+    avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%236B46C1"/%3E%3Ctext x="20" y="25" text-anchor="middle" fill="white" font-family="Arial" font-size="14"%3EU%3C/text%3E%3C/svg%3E',
     notes: ''
   }
 ])
@@ -374,8 +376,7 @@ const openNewContactModal = () => {
 const editContact = (contact) => {
   editingContact.value = contact
   contactForm.value = { ...contact }
-  const modal = new bootstrap.Modal(document.getElementById('newContactModal'))
-  modal.show()
+  openNewContactModal()
 }
 
 const saveContact = async () => {
@@ -390,7 +391,7 @@ const saveContact = async () => {
       contacts.value.push({
         id: contacts.value.length + 1,
         ...contactForm.value,
-        avatar: 'https://via.placeholder.com/40',
+        avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%236B46C1"/%3E%3Ctext x="20" y="25" text-anchor="middle" fill="white" font-family="Arial" font-size="14"%3EU%3C/text%3E%3C/svg%3E',
         lastActivity: new Date().toISOString().split('T')[0]
       })
     }

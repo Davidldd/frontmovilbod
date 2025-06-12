@@ -351,11 +351,36 @@
 import { ref, computed } from 'vue'
 import DashboardLayout from '../../components/DashboardLayout.vue'
 
+// Generate user avatar function - moved to top
+const generateUserAvatar = (name) => {
+  if (!name) return ''
+  
+  const names = name.split(' ')
+  const initials = names.length >= 2 
+    ? names[0].charAt(0) + names[1].charAt(0)
+    : names[0].charAt(0)
+  
+  const colors = [
+    '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b',
+    '#fa709a', '#ffecd2', '#a8edea', '#d299c2', '#89f7fe'
+  ]
+  
+  const colorIndex = name.length % colors.length
+  const color = colors[colorIndex]
+  
+  return `data:image/svg+xml;base64,${btoa(`
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="${color}"/>
+      <text x="16" y="20" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="600">${initials.toUpperCase()}</text>
+    </svg>
+  `)}`
+}
+
 // Mock data
 const users = ref([
-  { id: 1, name: 'Juan Pérez', avatar: 'https://via.placeholder.com/32' },
-  { id: 2, name: 'María García', avatar: 'https://via.placeholder.com/32' },
-  { id: 3, name: 'Carlos López', avatar: 'https://via.placeholder.com/32' }
+  { id: 1, name: 'Juan Pérez', avatar: generateUserAvatar('Juan Pérez') },
+  { id: 2, name: 'María García', avatar: generateUserAvatar('María García') },
+  { id: 3, name: 'Carlos López', avatar: generateUserAvatar('Carlos López') }
 ])
 
 const taskStatuses = ref([
@@ -565,7 +590,7 @@ const getUserName = (userId) => {
 
 const getUserAvatar = (userId) => {
   const user = users.value.find(u => u.id === userId)
-  return user ? user.avatar : 'https://via.placeholder.com/32'
+  return user ? user.avatar : generateUserAvatar('Usuario')
 }
 
 const isOverdue = (dueDate) => {

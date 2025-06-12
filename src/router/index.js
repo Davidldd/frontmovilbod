@@ -1,8 +1,9 @@
+// auth view
 import LoginView from "../views/auth/LoginView.vue"
 import RegisterView from "../views/auth/RegisterView.vue"
 import ForgotPasswordView from "../views/auth/ForgotPasswordView.vue"
 import ProfileView from "../views/auth/ProfileView.vue"
-
+// inventory view
 import InventoryInputView from "../views/inventory/InventoryInputView.vue"
 import InventoryOutputView from "../views/inventory/InventoryOutputView.vue"
 import InventoryTransferView from "../views/inventory/InventoryTransferView.vue"
@@ -11,14 +12,14 @@ import InventoryDashboardView from "../views/inventory/InventoryDashboardView.vu
 import InventoryStockView from "../views/inventory/InventoryStockView.vue"
 import InventoryLocationsView from "../views/inventory/InventoryLocationsView.vue"
 import InventoryAlertsView from "../views/inventory/InventoryAlertsView.vue"
-
+// catalog view
 import CatalogProductsView from "../views/catalog/CatalogProductsView.vue"
 import CatalogCategoriesView from "../views/catalog/CatalogCategoriesView.vue"
 import CatalogProductsNewView from "../views/catalog/CatalogProductsNewView.vue"
-
+// dashboard view
 import DashboardView from "../views/DashboardView.vue"
 import ModuleConfigView from "../views/config/ModuleConfigView.vue"
-
+// crm view
 import CrmDashboardView from "../views/crm/CrmDashboardView.vue"
 import CrmContactsView from "../views/crm/CrmContactsView.vue"
 import CrmCompaniesView from "../views/crm/CrmCompaniesView.vue"
@@ -50,6 +51,25 @@ import PurchaseOrderCreateView from "../views/purchases/PurchaseOrderCreateView.
 import GoodsReceiptsView from "../views/purchases/GoodsReceiptsView.vue"
 import SupplierInvoicesView from "../views/purchases/SupplierInvoicesView.vue"
 
+// Sales Views
+import SalesDashboardView from "../views/sales/SalesDashboardView.vue"
+import CustomersView from "../views/sales/CustomersView.vue"
+import CustomerCreateView from "../views/sales/CustomerCreateView.vue"
+import QuotationsView from "../views/sales/QuotationsView.vue"
+import QuotationCreateView from "../views/sales/QuotationCreateView.vue"
+import SalesOrdersView from "../views/sales/SalesOrdersView.vue"
+import SalesOrderCreateView from "../views/sales/SalesOrderCreateView.vue"
+import DeliveriesView from "../views/sales/DeliveriesView.vue"
+import DeliveryCreateView from "../views/sales/DeliveryCreateView.vue"
+
+// Reports Views
+import ReportsDashboardView from "../views/reports/ReportsDashboardView.vue"
+import SalesReportsView from "../views/reports/SalesReportsView.vue"
+import InventoryReportsView from "../views/reports/InventoryReportsView.vue"
+import FinancialReportsView from "../views/reports/FinancialReportsView.vue"
+import CustomReportsView from "../views/reports/CustomReportsView.vue"
+import ReportBuilderView from "../views/reports/ReportBuilderView.vue"
+
 const routes = [
   { path: "/", redirect: "/login" },
   { path: "/login", name: "login", component: LoginView },
@@ -78,19 +98,94 @@ const routes = [
     meta: { requiresAuth: true, module: "crm" },
   },
   {
+    path: "/crm/contacts/new",
+    name: "crm-contact-new",
+    component: () => import("../views/crm/CrmContactCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+  },
+  {
+    path: "/crm/contacts/:id/edit",
+    name: "crm-contact-edit",
+    component: () => import("../views/crm/CrmContactCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+    props: true,
+  },
+  {
     path: "/crm/companies",
     name: "crm-companies",
     component: CrmCompaniesView,
     meta: { requiresAuth: true, module: "crm" },
   },
-  { path: "/crm/leads", name: "crm-leads", component: CrmLeadsView, meta: { requiresAuth: true, module: "crm" } },
+  {
+    path: "/crm/companies/new",
+    name: "crm-company-new",
+    component: () => import("../views/crm/CrmCompanyCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+  },
+  {
+    path: "/crm/companies/:id/edit",
+    name: "crm-company-edit",
+    component: () => import("../views/crm/CrmCompanyCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+    props: true,
+  },
+  {
+    path: "/crm/leads",
+    name: "crm-leads",
+    component: CrmLeadsView,
+    meta: { requiresAuth: true, module: "crm" },
+  },
+  {
+    path: "/crm/leads/new",
+    name: "crm-lead-new",
+    component: () => import("../views/crm/CrmLeadCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+  },
+  {
+    path: "/crm/leads/:id/edit",
+    name: "crm-lead-edit",
+    component: () => import("../views/crm/CrmLeadCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+    props: true,
+  },
   {
     path: "/crm/opportunities",
     name: "crm-opportunities",
     component: CrmOpportunitiesView,
     meta: { requiresAuth: true, module: "crm" },
   },
-  { path: "/crm/tasks", name: "crm-tasks", component: CrmTasksView, meta: { requiresAuth: true, module: "crm" } },
+  {
+    path: "/crm/opportunities/new",
+    name: "crm-opportunity-new",
+    component: () => import("../views/crm/CrmOpportunityCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+  },
+  {
+    path: "/crm/opportunities/:id/edit",
+    name: "crm-opportunity-edit",
+    component: () => import("../views/crm/CrmOpportunityCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+    props: true,
+  },
+  {
+    path: "/crm/tasks",
+    name: "crm-tasks",
+    component: CrmTasksView,
+    meta: { requiresAuth: true, module: "crm" },
+  },
+  {
+    path: "/crm/tasks/new",
+    name: "crm-task-new",
+    component: () => import("../views/crm/CrmTaskCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+  },
+  {
+    path: "/crm/tasks/:id/edit",
+    name: "crm-task-edit",
+    component: () => import("../views/crm/CrmTaskCreateView.vue"),
+    meta: { requiresAuth: true, module: "crm" },
+    props: true,
+  },
   // Inventory
   {
     path: "/inventory/dashboard",
@@ -138,6 +233,18 @@ const routes = [
     path: "/inventory/adjustment",
     name: "inventory-adjustment",
     component: InventoryAdjustmentView,
+    meta: { requiresAuth: true, module: "inventory" },
+  },
+  {
+    path: "/inventory/movements",
+    name: "inventory-movements",
+    component: () => import("../views/inventory/InventoryMovementsView.vue"),
+    meta: { requiresAuth: true, module: "inventory" },
+  },
+  {
+    path: "/inventory/reports",
+    name: "inventory-reports",
+    component: () => import("../views/inventory/InventoryReportsView.vue"),
     meta: { requiresAuth: true, module: "inventory" },
   },
   // Catalog
@@ -300,8 +407,8 @@ const routes = [
     meta: { requiresAuth: true, module: "purchases" },
   },
   {
-    path: "/purchases/order/new",
-    name: "purchases-order-new",
+    path: "/purchases/orders/new",
+    name: "purchases-orders-new",
     component: PurchaseOrderCreateView,
     meta: { requiresAuth: true, module: "purchases" },
   },
@@ -323,6 +430,154 @@ const routes = [
     name: "purchases-supplier-invoices",
     component: SupplierInvoicesView,
     meta: { requiresAuth: true, module: "purchases" },
+  },
+  {
+    path: "/purchases/invoice/:id",
+    name: "purchases-invoice-view",
+    component: SupplierInvoicesView, // Temporal, debería ser una vista de detalle
+    meta: { requiresAuth: true, module: "purchases" },
+    props: true,
+  },
+  {
+    path: "/purchases/invoice/:id/edit",
+    name: "purchases-invoice-edit",
+    component: SupplierInvoicesView, // Temporal, debería ser una vista de edición
+    meta: { requiresAuth: true, module: "purchases" },
+    props: true,
+  },
+  // Sales
+  {
+    path: "/sales/dashboard",
+    name: "sales-dashboard",
+    component: SalesDashboardView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/customers",
+    name: "sales-customers",
+    component: CustomersView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/customer/new",
+    name: "sales-customer-new",
+    component: CustomerCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/customer/:id/edit",
+    name: "sales-customer-edit",
+    component: CustomerCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+    props: true,
+  },
+  {
+    path: "/sales/quotations",
+    name: "sales-quotations",
+    component: QuotationsView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/quotation/new",
+    name: "sales-quotation-new",
+    component: QuotationCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/quotation/:id/edit",
+    name: "sales-quotation-edit",
+    component: QuotationCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+    props: true,
+  },
+  {
+    path: "/sales/quotation/:id/duplicate",
+    name: "sales-quotation-duplicate",
+    component: QuotationCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+    props: true,
+  },
+  {
+    path: "/sales/orders",
+    name: "sales-orders",
+    component: SalesOrdersView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/order/new",
+    name: "sales-order-new",
+    component: SalesOrderCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/order/:id/edit",
+    name: "sales-order-edit",
+    component: SalesOrderCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+    props: true,
+  },
+  {
+    path: "/sales/deliveries",
+    name: "sales-deliveries",
+    component: DeliveriesView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/delivery/new",
+    name: "sales-delivery-new",
+    component: DeliveryCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+  },
+  {
+    path: "/sales/delivery/:id/edit",
+    name: "sales-delivery-edit",
+    component: DeliveryCreateView,
+    meta: { requiresAuth: true, module: "sales" },
+    props: true,
+  },
+  // Reports
+  {
+    path: "/reports/dashboard",
+    name: "reports-dashboard",
+    component: ReportsDashboardView,
+    meta: { requiresAuth: true, module: "reports" },
+  },
+  {
+    path: "/reports/sales",
+    name: "reports-sales",
+    component: SalesReportsView,
+    meta: { requiresAuth: true, module: "reports" },
+  },
+  {
+    path: "/reports/inventory",
+    name: "reports-inventory",
+    component: InventoryReportsView,
+    meta: { requiresAuth: true, module: "reports" },
+  },
+  {
+    path: "/reports/financial",
+    name: "reports-financial",
+    component: FinancialReportsView,
+    meta: { requiresAuth: true, module: "reports" },
+  },
+  {
+    path: "/reports/custom",
+    name: "reports-custom",
+    component: CustomReportsView,
+    meta: { requiresAuth: true, module: "reports" },
+  },
+  {
+    path: "/reports/builder",
+    name: "reports-builder",
+    component: ReportBuilderView,
+    meta: { requiresAuth: true, module: "reports" },
+  },
+  {
+    path: "/reports/builder/:id/edit",
+    name: "reports-builder-edit",
+    component: ReportBuilderView,
+    meta: { requiresAuth: true, module: "reports" },
+    props: true,
   },
 ]
 

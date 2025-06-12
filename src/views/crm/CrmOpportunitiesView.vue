@@ -334,11 +334,36 @@
 import { ref, computed } from 'vue'
 import DashboardLayout from '../../components/DashboardLayout.vue'
 
+
+// Generate user avatar function
+const generateUserAvatar = (name) => {
+  const colors = [
+    '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', 
+    '#43e97b', '#fa709a', '#ffecd2', '#a8edea', '#d299c2'
+  ]
+  
+  const initials = name.split(' ')
+    .map(word => word.charAt(0))
+    .join('')
+    .substring(0, 2)
+    .toUpperCase()
+  
+  const colorIndex = name.length % colors.length
+  const color = colors[colorIndex]
+  
+  return `data:image/svg+xml;base64,${btoa(`
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="16" fill="${color}"/>
+      <text x="16" y="20" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="600">${initials}</text>
+    </svg>
+  `)}`
+}
+
 // Mock data
 const users = ref([
-  { id: 1, name: 'Juan Pérez', avatar: 'https://via.placeholder.com/32' },
-  { id: 2, name: 'María García', avatar: 'https://via.placeholder.com/32' },
-  { id: 3, name: 'Carlos López', avatar: 'https://via.placeholder.com/32' }
+  { id: 1, name: 'Juan Pérez', avatar: generateUserAvatar('Juan Pérez') },
+  { id: 2, name: 'María García', avatar: generateUserAvatar('María García') },
+  { id: 3, name: 'Carlos López', avatar: generateUserAvatar('Carlos López') }
 ])
 
 const pipelineStages = ref([
