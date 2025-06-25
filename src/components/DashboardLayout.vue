@@ -20,7 +20,7 @@
           </div>
         </div>
         <button 
-          class="mobile-close d-lg-none" 
+          class="mobile-close d-lg-none btn btn-link" 
           @click="closeMobileMenu"
           aria-label="Cerrar menú"
         >
@@ -43,7 +43,7 @@
         <div v-for="module in activeModules" :key="module.id" class="nav-section">
           <div class="nav-module" :class="{ 'expanded': expandedModules[module.id] }">
             <button 
-              class="nav-module-toggle" 
+              class="nav-module-toggle btn" 
               @click="toggleModule(module.id)"
               :aria-expanded="expandedModules[module.id]"
             >
@@ -57,8 +57,8 @@
             </button>
             
             <div 
-              class="nav-submenu" 
-              v-show="(expandedModules[module.id] && !themeStore.sidebarCollapsed) || (!themeStore.sidebarCollapsed && isModuleActive(module.id))"
+              class="nav-submenu collapse" 
+              :class="{ 'show': expandedModules[module.id] && !themeStore.sidebarCollapsed }"
             >
               <!-- CRM Module -->
               <template v-if="module.id === 'crm'">
@@ -271,7 +271,7 @@
       <div class="sidebar-footer">
         <div class="user-info-sidebar" v-if="!themeStore.sidebarCollapsed">
           <div class="user-avatar-small">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%236B46C1'/%3E%3Ctext x='16' y='20' text-anchor='middle' fill='white' font-family='Arial' font-size='12'%3EU%3C/text%3E%3C/svg%3E" alt="Usuario">
+            <img :src="userAvatarUrl" alt="Usuario">
           </div>
           <div class="user-details">
             <div class="user-name-small">{{ authStore.userName }}</div>
@@ -279,7 +279,7 @@
           </div>
         </div>
         <button 
-          class="sidebar-collapse-btn" 
+          class="sidebar-collapse-btn btn btn-link" 
           @click="themeStore.toggleSidebar()"
           :title="themeStore.sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'"
         >
@@ -298,14 +298,14 @@
           </button>
           
           <!-- Breadcrumb -->
-          <nav class="breadcrumb-nav d-none d-md-block">
+          <nav class="breadcrumb-nav d-none d-md-block" aria-label="breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item">
                 <router-link to="/dashboard">
                   <i class="bi bi-house-door me-1"></i>Dashboard
                 </router-link>
               </li>
-              <li class="breadcrumb-item active" v-if="currentBreadcrumb">{{ currentBreadcrumb }}</li>
+              <li class="breadcrumb-item active" v-if="currentBreadcrumb" aria-current="page">{{ currentBreadcrumb }}</li>
             </ol>
           </nav>
           
@@ -328,10 +328,18 @@
         <div class="topbar-right">
           <!-- Quick Actions -->
           <div class="quick-actions d-none d-xl-flex">
-            <button class="btn btn-sm btn-outline-primary me-2" title="Nueva Factura">
+            <button 
+              class="btn btn-sm btn-outline-primary me-2" 
+              title="Nueva Factura"
+              @click="goToNewInvoice"
+            >
               <i class="bi bi-plus-circle me-1"></i>Factura
             </button>
-            <button class="btn btn-sm btn-outline-secondary" title="Nuevo Producto">
+            <button 
+              class="btn btn-sm btn-outline-secondary" 
+              title="Nuevo Producto"
+              @click="goToNewProduct"
+            >
               <i class="bi bi-plus-circle me-1"></i>Producto
             </button>
           </div>
@@ -342,27 +350,36 @@
           </button>
 
           <!-- Theme Toggle -->
-          <button class="btn btn-link topbar-btn" @click="themeStore.toggleTheme()" title="Cambiar tema">
+          <button class="btn btn-link topbar-btn" @click="toggleTheme" title="Cambiar tema">
             <i class="bi" :class="themeStore.isDark ? 'bi-sun' : 'bi-moon'"></i>
           </button>
 
           <!-- Notifications -->
           <div class="dropdown">
-            <button class="btn btn-link topbar-btn position-relative" data-bs-toggle="dropdown" aria-expanded="false" title="Notificaciones">
+            <button 
+              id="notificationsDropdown"
+              class="btn btn-link topbar-btn position-relative" 
+              type="button"
+              @click="toggleNotifications"
+              aria-expanded="false" 
+              title="Notificaciones"
+            >
               <i class="bi bi-bell"></i>
-              <span v-if="notifications.length > 0" class="notification-badge">
+              <span v-if="notifications.length > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 {{ notifications.length > 9 ? '9+' : notifications.length }}
               </span>
             </button>
-            <div class="dropdown-menu dropdown-menu-end notification-dropdown">
-              <div class="dropdown-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Notificaciones</h6>
-                <button class="btn btn-sm btn-link text-primary p-0" v-if="notifications.length > 0">
-                  Marcar como leídas
-                </button>
-              </div>
-              <div class="notification-list">
-                <div v-for="notification in notifications.slice(0, 5)" :key="notification.id" class="notification-item">
+            <ul class="dropdown-menu dropdown-menu-end notification-dropdown" :class="{ 'show': showNotifications }">
+              <li>
+                <div class="dropdown-header d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Notificaciones</h6>
+                  <button class="btn btn-sm btn-link text-primary p-0" v-if="notifications.length > 0" @click="markAllAsRead">
+                    Marcar como leídas
+                  </button>
+                </div>
+              </li>
+              <li v-for="notification in notifications.slice(0, 5)" :key="notification.id">
+                <div class="dropdown-item-text notification-item">
                   <div class="notification-icon" :class="getNotificationClass(notification.type)">
                     <i :class="getNotificationIcon(notification.type)"></i>
                   </div>
@@ -372,23 +389,33 @@
                     <div class="notification-time">{{ notification.time }}</div>
                   </div>
                 </div>
-                <div v-if="notifications.length === 0" class="dropdown-item text-center text-muted py-4">
+              </li>
+              <li v-if="notifications.length === 0">
+                <div class="dropdown-item-text text-center text-muted py-4">
                   <i class="bi bi-bell-slash fs-1 mb-2 d-block"></i>
                   No hay notificaciones nuevas.
                 </div>
-              </div>
-              <div v-if="notifications.length > 0" class="dropdown-divider"></div>
-              <a v-if="notifications.length > 0" class="dropdown-item text-center text-primary fw-medium" href="#">
-                Ver todas las notificaciones
-              </a>
-            </div>
+              </li>
+              <li v-if="notifications.length > 0"><hr class="dropdown-divider"></li>
+              <li v-if="notifications.length > 0">
+                <a class="dropdown-item text-center text-primary fw-medium" href="#" @click.prevent="viewAllNotifications">
+                  Ver todas las notificaciones
+                </a>
+              </li>
+            </ul>
           </div>
 
           <!-- User Menu -->
           <div class="dropdown">
-            <button class="btn btn-link user-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
+            <button 
+              id="userMenuDropdown"
+              class="btn btn-link user-menu-btn" 
+              type="button"
+              @click="toggleUserMenu"
+              aria-expanded="false"
+            >
               <div class="user-avatar">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%236B46C1'/%3E%3Ctext x='20' y='25' text-anchor='middle' fill='white' font-family='Arial' font-size='14'%3EU%3C/text%3E%3C/svg%3E" alt="Usuario">
+                <img :src="userAvatarUrl" alt="Usuario">
                 <div class="user-status"></div>
               </div>
               <div class="user-info d-none d-sm-block">
@@ -397,34 +424,44 @@
               </div>
               <i class="bi bi-chevron-down d-none d-sm-inline"></i>
             </button>
-            <div class="dropdown-menu dropdown-menu-end user-dropdown">
-              <div class="dropdown-header">
-                <div class="user-profile-header">
-                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%236B46C1'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='white' font-family='Arial' font-size='16'%3EU%3C/text%3E%3C/svg%3E" class="user-avatar-large" alt="Usuario">
-                  <div class="user-profile-info">
-                    <div class="user-name-large">{{ authStore.userName }}</div>
-                    <div class="user-email">usuario@movilbod.com</div>
-                    <div class="user-role-badge">
-                      <span class="badge bg-primary">{{ authStore.role }}</span>
+            <ul class="dropdown-menu dropdown-menu-end user-dropdown" :class="{ 'show': showUserMenu }">
+              <li>
+                <div class="dropdown-header">
+                  <div class="user-profile-header">
+                    <img :src="userAvatarUrl" class="user-avatar-large" alt="Usuario">
+                    <div class="user-profile-info">
+                      <div class="user-name-large">{{ authStore.userName }}</div>
+                      <div class="user-email">usuario@movilbod.com</div>
+                      <div class="user-role-badge">
+                        <span class="badge bg-primary">{{ authStore.role }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="dropdown-divider"></div>
-              <router-link to="/profile" class="dropdown-item" @click="closeMobileMenu">
-                <i class="bi bi-person me-2"></i>Mi Perfil
-              </router-link>
-              <router-link to="/profile" class="dropdown-item" @click="closeMobileMenu">
-                <i class="bi bi-gear me-2"></i>Configuración
-              </router-link>
-              <a class="dropdown-item" href="#" @click.prevent="showHelp">
-                <i class="bi bi-question-circle me-2"></i>Ayuda
-              </a>
-              <div class="dropdown-divider"></div>
-              <button class="dropdown-item text-danger" @click="logout">
-                <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
-              </button>
-            </div>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <router-link to="/profile" class="dropdown-item" @click="closeUserMenu">
+                  <i class="bi bi-person me-2"></i>Mi Perfil
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/profile" class="dropdown-item" @click="closeUserMenu">
+                  <i class="bi bi-gear me-2"></i>Configuración
+                </router-link>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" @click.prevent="showHelp">
+                  <i class="bi bi-question-circle me-2"></i>Ayuda
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <button class="dropdown-item text-danger" @click="handleLogout">
+                  <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </header>
@@ -458,21 +495,25 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useModuleStore } from '../stores/moduleStore'
 import { useAuthStore } from '../stores/authStore'
 import { useThemeStore } from '../stores/themeStore'
+import { useBootstrap } from '../composables/useBootstrap'
 
 const router = useRouter()
 const route = useRoute() 
 const moduleStore = useModuleStore()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
+const { initializeDropdowns } = useBootstrap()
 
 const searchQuery = ref('')
 const showMobileMenu = ref(false)
 const showMobileSearch = ref(false)
+const showNotifications = ref(false)
+const showUserMenu = ref(false)
 const mobileSearchInput = ref(null)
 const expandedModules = ref({})
 
@@ -488,6 +529,7 @@ const currentBreadcrumb = computed(() => {
   if (path.includes('/sales/')) return 'Ventas'
   if (path.includes('/reports/')) return 'Reportes'
   if (path.includes('/config/')) return 'Configuración'
+  if (path.includes('/profile')) return 'Mi Perfil'
   return null
 })
 
@@ -514,6 +556,35 @@ const notifications = ref([
     time: 'Hace 2 horas'
   }
 ])
+
+// Generar avatar de usuario dinámicamente
+const userAvatarUrl = computed(() => {
+  const userName = authStore.userName || 'Usuario';
+  const initial = userName.charAt(0).toUpperCase();
+  const color = generateColorFromName(userName);
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='${encodeURIComponent(color)}'/%3E%3Ctext x='20' y='25' text-anchor='middle' fill='white' font-family='Arial' font-size='16'%3E${initial}%3C/text%3E%3C/svg%3E`;
+});
+
+// Función para generar un color basado en el nombre de usuario
+function generateColorFromName(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const colors = [
+    '#6B46C1', // Púrpura (primario)
+    '#3182CE', // Azul
+    '#38A169', // Verde
+    '#DD6B20', // Naranja
+    '#E53E3E', // Rojo
+    '#805AD5', // Púrpura claro
+    '#2C7A7B', // Verde azulado
+    '#B7791F'  // Amarillo oscuro
+  ];
+  
+  return colors[Math.abs(hash) % colors.length];
+}
 
 // Auto-expand active module
 watch(() => route.path, (newPath) => {
@@ -600,22 +671,122 @@ const performSearch = () => {
   }
 }
 
-const logout = () => {
-  authStore.logout()
-  router.push('/login')
+// Dropdown functions
+const toggleNotifications = () => {
+  showNotifications.value = !showNotifications.value
+  if (showUserMenu.value) showUserMenu.value = false
+}
+
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+  if (showNotifications.value) showNotifications.value = false
+}
+
+const closeUserMenu = () => {
+  showUserMenu.value = false
+}
+
+const closeNotifications = () => {
+  showNotifications.value = false
+}
+
+// Theme toggle
+const toggleTheme = () => {
+  themeStore.toggleTheme()
+}
+
+// Notification functions
+const markAllAsRead = () => {
+  notifications.value = []
+  closeNotifications()
+}
+
+const viewAllNotifications = () => {
+  router.push('/notifications')
+  closeNotifications()
+}
+
+const handleLogout = () => {
+  authStore.logout();
+  router.push('/login');
 }
 
 const showHelp = () => {
-  // Aquí se podría abrir un modal de ayuda o redirigir a documentación
   console.log('Mostrar ayuda')
 }
+
+// Click outside to close dropdowns
+const handleClickOutside = (event) => {
+  const notificationDropdown = document.querySelector('.notification-dropdown')
+  const userDropdown = document.querySelector('.user-dropdown')
+  const notificationButton = document.getElementById('notificationsDropdown')
+  const userButton = document.getElementById('userMenuDropdown')
+
+  if (showNotifications.value && 
+      !notificationDropdown?.contains(event.target) && 
+      !notificationButton?.contains(event.target)) {
+    showNotifications.value = false
+  }
+
+  if (showUserMenu.value && 
+      !userDropdown?.contains(event.target) && 
+      !userButton?.contains(event.target)) {
+    showUserMenu.value = false
+  }
+}
+
+const goToNewInvoice = () => {
+  // Asumimos que la ruta para crear una nueva factura de venta es /billing/invoices/new
+  // O si tienes una ruta específica para facturas de venta, ajústala aquí.
+  // Por ejemplo, si el módulo de ventas está activo y tiene su propia creación de facturas.
+  if (moduleStore.isModuleActive('billing')) {
+    router.push('/billing/invoices/new');
+  } else if (moduleStore.isModuleActive('sales')) {
+    // Si tienes una ruta como /sales/invoices/new, úsala.
+    // Por ahora, usaremos la de billing como ejemplo general.
+    router.push('/billing/invoices/new'); 
+    // Opcionalmente, podrías mostrar un mensaje si el módulo no está activo
+    // console.warn("El módulo de Facturación o Ventas no está activo.");
+  }
+  closeMobileMenu(); // Cierra el menú móvil si está abierto
+}
+
+const goToNewProduct = () => {
+  if (moduleStore.isModuleActive('inventory')) { // El catálogo de productos suele estar ligado a inventario
+    router.push('/catalog/products/new');
+  } else {
+    // Opcionalmente, podrías mostrar un mensaje si el módulo no está activo
+    // console.warn("El módulo de Inventario (Catálogo) no está activo.");
+  }
+  closeMobileMenu(); // Cierra el menú móvil si está abierto
+}
+
+onMounted(() => {
+  console.log('✅ DashboardLayout montado')
+  
+  // Inicializar tema
+  themeStore.initializeTheme()
+  
+  // Inicializar dropdowns
+  setTimeout(() => {
+    initializeDropdowns()
+  }, 1000)
+  
+  // Agregar listener para clicks fuera de los dropdowns
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>
+/* Usar Bootstrap como base y personalizar */
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--background-color);
+  background-color: var(--bs-gray-100);
 }
 
 /* Mobile Overlay */
@@ -626,22 +797,21 @@ const showHelp = () => {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  display: none;
+  z-index: 1040;
   backdrop-filter: blur(4px);
 }
 
 /* Sidebar */
 .sidebar {
   width: 280px;
-  background: linear-gradient(180deg, var(--primary-color) 0%, #553c9a 100%);
+  background: linear-gradient(180deg, var(--bs-primary) 0%, #553c9a 100%);
   color: white;
-  transition: var(--transition-normal);
+  transition: all 0.3s ease;
   position: fixed;
   height: 100vh;
-  z-index: 1000;
+  z-index: 1050;
   overflow: hidden;
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
 }
@@ -670,7 +840,7 @@ const showHelp = () => {
   width: 48px;
   height: 48px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--border-radius-lg);
+  border-radius: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -680,7 +850,7 @@ const showHelp = () => {
 
 .brand-logo i {
   font-size: 1.5rem;
-  color: var(--warning-color);
+  color: #f6e05e;
 }
 
 .brand-info {
@@ -713,12 +883,12 @@ const showHelp = () => {
   color: white;
   font-size: 1.25rem;
   padding: 0.5rem;
-  border-radius: var(--border-radius);
-  transition: var(--transition-fast);
+  border-radius: 0.375rem;
 }
 
 .mobile-close:hover {
   background: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 /* Sidebar Content */
@@ -732,17 +902,17 @@ const showHelp = () => {
   margin-bottom: 0.5rem;
 }
 
-/* Single Navigation Items */
+/* Navigation Items */
 .nav-item.single-item {
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  transition: var(--transition-fast);
+  transition: all 0.15s ease;
   gap: 0.75rem;
   margin: 0 0.5rem;
-  border-radius: var(--border-radius);
+  border-radius: 0.375rem;
   position: relative;
 }
 
@@ -772,14 +942,14 @@ const showHelp = () => {
   transform: translateY(-50%);
   width: 3px;
   height: 20px;
-  background: var(--warning-color);
+  background: #f6e05e;
   border-radius: 0 2px 2px 0;
 }
 
 /* Module Navigation */
 .nav-module {
   margin: 0 0.5rem 0.25rem;
-  border-radius: var(--border-radius);
+  border-radius: 0.375rem;
   overflow: hidden;
 }
 
@@ -792,9 +962,9 @@ const showHelp = () => {
   border: none;
   color: rgba(255, 255, 255, 0.8);
   text-align: left;
-  transition: var(--transition-fast);
+  transition: all 0.15s ease;
   gap: 0.75rem;
-  border-radius: var(--border-radius);
+  border-radius: 0.375rem;
 }
 
 .sidebar.collapsed .nav-module-toggle {
@@ -833,7 +1003,7 @@ const showHelp = () => {
 }
 
 .nav-arrow {
-  transition: var(--transition-fast);
+  transition: transform 0.15s ease;
 }
 
 .nav-module.expanded .nav-arrow {
@@ -844,19 +1014,12 @@ const showHelp = () => {
   display: none;
 }
 
-/* Submenu */
+/* Submenu usando Bootstrap Collapse */
 .nav-submenu {
   background: rgba(0, 0, 0, 0.1);
   padding: 0.25rem 0;
   margin-top: 0.25rem;
-  border-radius: var(--border-radius);
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-}
-
-.nav-module.expanded .nav-submenu {
-  max-height: 500px;
+  border-radius: 0.375rem;
 }
 
 .sidebar.collapsed .nav-submenu {
@@ -869,10 +1032,10 @@ const showHelp = () => {
   padding: 0.5rem 1rem 0.5rem 2.5rem;
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  transition: var(--transition-fast);
+  transition: all 0.15s ease;
   gap: 0.5rem;
   font-size: 0.9rem;
-  border-radius: var(--border-radius);
+  border-radius: 0.375rem;
   margin: 0 0.5rem;
 }
 
@@ -922,7 +1085,7 @@ const showHelp = () => {
 .user-avatar-small {
   width: 32px;
   height: 32px;
-  border-radius: var(--border-radius-full);
+  border-radius: 50%;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
@@ -959,22 +1122,22 @@ const showHelp = () => {
   color: white;
   width: 32px;
   height: 32px;
-  border-radius: var(--border-radius);
+  border-radius: 0.375rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition-fast);
 }
 
 .sidebar-collapse-btn:hover {
   background: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 /* Main Wrapper */
 .main-wrapper {
   flex: 1;
   margin-left: 280px;
-  transition: var(--transition-normal);
+  transition: margin-left 0.3s ease;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -986,17 +1149,18 @@ const showHelp = () => {
 
 /* Topbar */
 .topbar {
-  background: white;
-  border-bottom: 1px solid var(--border-color);
+  background: var(--topbar-bg, white);
+  border-bottom: 1px solid var(--bs-border-color);
   padding: 0.75rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 999;
-  box-shadow: var(--shadow-sm);
+  z-index: 1020;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   min-height: 70px;
+  color: var(--text-color, inherit);
 }
 
 .topbar-left, .topbar-right {
@@ -1009,15 +1173,14 @@ const showHelp = () => {
   border: none;
   background: none;
   font-size: 1.25rem;
-  color: var(--gray-600);
+  color: var(--bs-gray-600);
   padding: 0.5rem;
-  border-radius: var(--border-radius);
-  transition: var(--transition-fast);
+  border-radius: 0.375rem;
 }
 
 .sidebar-toggle:hover {
-  color: var(--primary-color);
-  background-color: var(--gray-50);
+  color: var(--bs-primary);
+  background-color: var(--bs-gray-100);
 }
 
 /* Breadcrumb */
@@ -1033,16 +1196,16 @@ const showHelp = () => {
 }
 
 .breadcrumb-item a {
-  color: var(--gray-600);
+  color: var(--text-muted, var(--bs-gray-600));
   text-decoration: none;
 }
 
 .breadcrumb-item a:hover {
-  color: var(--primary-color);
+  color: var(--bs-primary);
 }
 
 .breadcrumb-item.active {
-  color: var(--text-color);
+  color: var(--text-color, var(--bs-body-color));
   font-weight: 500;
 }
 
@@ -1052,24 +1215,25 @@ const showHelp = () => {
 }
 
 .search-box .form-control {
-  border-radius: var(--border-radius-full);
-  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  border: 1px solid var(--bs-border-color);
   padding-left: 0;
-  background: var(--gray-50);
+  background: var(--bs-gray-100);
+  color: var(--text-color, inherit);
 }
 
 .search-box .input-group-text {
-  background: var(--gray-50);
+  background: var(--bs-gray-100);
   border-right: none;
-  border-radius: var(--border-radius-full) 0 0 var(--border-radius-full);
-  border: 1px solid var(--border-color);
-  color: var(--gray-500);
+  border-radius: 50px 0 0 50px;
+  border: 1px solid var(--bs-border-color);
+  color: var(--text-muted, var(--bs-gray-500));
 }
 
 .search-box .form-control:focus {
-  box-shadow: 0 0 0 0.2rem rgba(107, 70, 193, 0.25);
-  border-color: var(--primary-color);
-  background: white;
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+  border-color: var(--bs-primary);
+  background: var(--card-bg, white);
 }
 
 /* Quick Actions */
@@ -1081,41 +1245,22 @@ const showHelp = () => {
 .topbar-btn {
   border: none;
   background: none;
-  color: var(--gray-600);
+  color: var(--text-muted, var(--bs-gray-600));
   padding: 0.5rem;
-  border-radius: var(--border-radius-full);
+  border-radius: 50%;
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition-fast);
+  transition: all 0.15s ease;
   position: relative;
 }
 
 .topbar-btn:hover {
-  background-color: var(--gray-50);
-  color: var(--primary-color);
+  background-color: var(--bs-gray-100);
+  color: var(--bs-primary);
   transform: translateY(-1px);
-}
-
-/* Notification Badge */
-.notification-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: var(--danger-color);
-  color: white;
-  font-size: 0.625rem;
-  font-weight: 600;
-  padding: 0.125rem 0.375rem;
-  border-radius: var(--border-radius-full);
-  min-width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
 }
 
 /* User Menu Button */
@@ -1125,31 +1270,32 @@ const showHelp = () => {
   gap: 0.75rem;
   border: none;
   background: none;
-  color: var(--text-color);
+  color: var(--text-color, var(--bs-body-color));
   padding: 0.5rem 1rem;
-  border-radius: var(--border-radius-full);
-  transition: var(--transition-fast);
+  border-radius: 50px;
+  transition: all 0.15s ease;
   border: 1px solid transparent;
 }
 
 .user-menu-btn:hover {
-  background-color: var(--gray-50);
-  border-color: var(--border-color);
+  background-color: var(--bs-gray-100);
+  border-color: var(--bs-border-color);
   transform: translateY(-1px);
+  color: var(--text-color, var(--bs-body-color));
 }
 
 .user-avatar {
   width: 40px;
   height: 40px;
-  border-radius: var(--border-radius-full);
+  border-radius: 50%;
   overflow: hidden;
   position: relative;
-  border: 2px solid var(--border-color);
-  transition: var(--transition-fast);
+  border: 2px solid var(--bs-border-color);
+  transition: border-color 0.15s ease;
 }
 
 .user-menu-btn:hover .user-avatar {
-  border-color: var(--primary-color);
+  border-color: var(--bs-primary);
 }
 
 .user-avatar img {
@@ -1164,9 +1310,9 @@ const showHelp = () => {
   right: 2px;
   width: 10px;
   height: 10px;
-  background: var(--success-color);
+  background: var(--bs-success);
   border: 2px solid white;
-  border-radius: var(--border-radius-full);
+  border-radius: 50%;
 }
 
 .user-info {
@@ -1180,11 +1326,12 @@ const showHelp = () => {
   font-weight: 500;
   line-height: 1.2;
   margin: 0;
+  color: var(--text-color, inherit);
 }
 
 .user-role {
   font-size: 0.75rem;
-  color: var(--gray-500);
+  color: var(--text-muted, var(--bs-gray-500));
   text-transform: capitalize;
   line-height: 1.2;
 }
@@ -1192,36 +1339,45 @@ const showHelp = () => {
 /* Mobile Search */
 .mobile-search {
   padding: 1rem 1.5rem;
-  background: white;
-  border-bottom: 1px solid var(--border-color);
+  background: var(--topbar-bg, white);
+  border-bottom: 1px solid var(--bs-border-color);
   animation: slideDown 0.3s ease-out;
 }
 
 /* Dropdowns */
+.notification-dropdown,
+.user-dropdown {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--dropdown-bg, white);
+  color: var(--text-color, var(--bs-body-color));
+}
+
 .notification-dropdown {
   width: 380px;
   max-height: 500px;
-  border: none;
-  box-shadow: var(--shadow-xl);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
 }
 
-.notification-list {
-  max-height: 400px;
-  overflow-y: auto;
+.user-dropdown {
+  width: 280px;
+}
+
+.dropdown-menu.show {
+  display: block;
 }
 
 .notification-item {
   padding: 1rem;
-  border-bottom: 1px solid var(--gray-100);
-  transition: var(--transition-fast);
+  border-bottom: 1px solid var(--bs-gray-200);
+  transition: background-color 0.15s ease;
   display: flex;
   gap: 0.75rem;
 }
 
 .notification-item:hover {
-  background-color: var(--gray-50);
+  background-color: var(--bs-gray-100);
 }
 
 .notification-item:last-child {
@@ -1231,7 +1387,7 @@ const showHelp = () => {
 .notification-icon {
   width: 40px;
   height: 40px;
-  border-radius: var(--border-radius-full);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1239,23 +1395,23 @@ const showHelp = () => {
 }
 
 .notification-success {
-  background: rgba(154, 230, 180, 0.2);
-  color: #22543d;
+  background: rgba(var(--bs-success-rgb), 0.2);
+  color: var(--bs-success);
 }
 
 .notification-warning {
-  background: rgba(246, 224, 94, 0.2);
-  color: #744210;
+  background: rgba(var(--bs-warning-rgb), 0.2);
+  color: var(--bs-warning);
 }
 
 .notification-error {
-  background: rgba(252, 129, 129, 0.2);
-  color: #742a2a;
+  background: rgba(var(--bs-danger-rgb), 0.2);
+  color: var(--bs-danger);
 }
 
 .notification-info {
-  background: rgba(11, 197, 234, 0.2);
-  color: var(--secondary-dark);
+  background: rgba(var(--bs-info-rgb), 0.2);
+  color: var(--bs-info);
 }
 
 .notification-content {
@@ -1266,29 +1422,20 @@ const showHelp = () => {
 .notification-title {
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--text-color);
+  color: var(--text-color, var(--bs-body-color));
   margin-bottom: 0.25rem;
 }
 
 .notification-text {
   font-size: 0.8rem;
-  color: var(--gray-600);
+  color: var(--text-muted, var(--bs-gray-600));
   line-height: 1.4;
   margin-bottom: 0.25rem;
 }
 
 .notification-time {
   font-size: 0.75rem;
-  color: var(--gray-500);
-}
-
-/* User Dropdown */
-.user-dropdown {
-  width: 280px;
-  border: none;
-  box-shadow: var(--shadow-xl);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
+  color: var(--text-muted, var(--bs-gray-500));
 }
 
 .user-profile-header {
@@ -1301,8 +1448,8 @@ const showHelp = () => {
 .user-avatar-large {
   width: 48px;
   height: 48px;
-  border-radius: var(--border-radius-full);
-  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  border: 2px solid var(--bs-border-color);
 }
 
 .user-profile-info {
@@ -1313,13 +1460,13 @@ const showHelp = () => {
 .user-name-large {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--text-color, var(--bs-body-color));
   margin-bottom: 0.125rem;
 }
 
 .user-email {
   font-size: 0.8rem;
-  color: var(--gray-500);
+  color: var(--text-muted, var(--bs-gray-500));
   margin-bottom: 0.25rem;
 }
 
@@ -1328,85 +1475,99 @@ const showHelp = () => {
   padding: 0.125rem 0.5rem;
 }
 
+.dropdown-item {
+  color: var(--text-color, var(--bs-body-color));
+  padding: 0.5rem 1rem;
+  transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: var(--bs-gray-100);
+  color: var(--bs-primary);
+}
+
+.dropdown-header {
+  color: var(--text-muted, var(--bs-gray-500));
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-divider {
+  border-top-color: var(--bs-border-color);
+}
+
 /* Main Content */
 .main-content {
   flex: 1;
   padding: 1.5rem;
-  background-color: var(--background-color);
+  background-color: var(--main-content-bg, var(--bs-gray-100));
   min-height: calc(100vh - 70px);
+  color: var(--text-color, inherit);
 }
 
-.dropdown-item {
-  padding: 0.5rem 1rem;
-  transition: var(--transition-fast);
-  border-radius: var(--border-radius);
-  margin: 0 0.25rem;
-}
-
-.dropdown-item:hover {
-  background-color: var(--gray-50);
-  color: var(--primary-color);
-}
-
-/* Dark Theme */
-.dark-theme {
-  background-color: var(--gray-900);
-}
-
+/* Dark Theme Improvements */
 .dark-theme .topbar {
-  background: var(--gray-800);
-  border-bottom-color: var(--gray-700);
-  color: var(--gray-100);
+  background: var(--topbar-bg);
+  border-bottom-color: var(--bs-gray-700);
+  color: var(--text-color);
 }
 
 .dark-theme .search-box .form-control,
 .dark-theme .search-box .input-group-text {
-  background: var(--gray-700);
-  border-color: var(--gray-600);
-  color: white;
+  background: var(--bs-gray-700);
+  border-color: var(--bs-gray-600);
+  color: var(--text-color);
 }
 
 .dark-theme .main-content {
-  background-color: var(--gray-900);
+  background-color: var(--main-content-bg);
+  color: var(--text-color);
 }
 
 .dark-theme .sidebar-toggle,
 .dark-theme .topbar-btn,
 .dark-theme .user-menu-btn {
-  color: var(--gray-300);
+  color: var(--text-muted);
 }
 
 .dark-theme .topbar-btn:hover,
 .dark-theme .user-menu-btn:hover {
-  background-color: var(--gray-700);
-  color: var(--primary-light);
+  background-color: var(--bs-gray-700);
+  color: var(--bs-primary);
 }
 
 .dark-theme .dropdown-menu {
-  background-color: var(--gray-800);
-  border-color: var(--gray-700);
+  background-color: var(--dropdown-bg);
+  border-color: var(--bs-gray-700);
 }
 
 .dark-theme .dropdown-item {
-  color: var(--gray-300);
+  color: var(--text-color);
 }
 
 .dark-theme .dropdown-item:hover {
-  background-color: var(--gray-700);
-  color: var(--primary-light);
+  background-color: var(--bs-gray-700);
+  color: var(--bs-primary);
 }
 
 .dark-theme .notification-item {
-  border-bottom-color: var(--gray-700);
+  border-bottom-color: var(--bs-gray-700);
 }
 
 .dark-theme .notification-title {
-  color: var(--gray-100);
+  color: var(--text-color);
 }
 
 .dark-theme .mobile-search {
-  background: var(--gray-800);
-  border-bottom-color: var(--gray-700);
+  background: var(--topbar-bg);
+  border-bottom-color: var(--bs-gray-700);
+}
+
+.dark-theme .breadcrumb-item a {
+  color: var(--text-muted);
+}
+
+.dark-theme .breadcrumb-item.active {
+  color: var(--text-color);
 }
 
 /* Responsive Design */
@@ -1492,25 +1653,6 @@ const showHelp = () => {
   }
 }
 
-/* Scrollbar personalizado */
-.sidebar-content::-webkit-scrollbar,
-.notification-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-content::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: var(--border-radius-full);
-}
-
-.sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
-}
-
 /* Animaciones */
 @keyframes slideDown {
   from { transform: translateY(-100%); opacity: 0; }
@@ -1523,7 +1665,7 @@ const showHelp = () => {
 .nav-subitem:focus,
 .topbar-btn:focus,
 .user-menu-btn:focus {
-  outline: 2px solid var(--primary-color);
+  outline: 2px solid var(--bs-primary);
   outline-offset: 2px;
 }
 

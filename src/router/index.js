@@ -70,6 +70,9 @@ import FinancialReportsView from "../views/reports/FinancialReportsView.vue"
 import CustomReportsView from "../views/reports/CustomReportsView.vue"
 import ReportBuilderView from "../views/reports/ReportBuilderView.vue"
 
+// Notifications View (NUEVO)
+import NotificationsView from "../views/notifications/NotificationsView.vue"
+
 const routes = [
   { path: "/", redirect: "/login" },
   { path: "/login", name: "login", component: LoginView },
@@ -77,6 +80,13 @@ const routes = [
   { path: "/forgot-password", name: "forgot-password", component: ForgotPasswordView },
   { path: "/dashboard", name: "dashboard", component: DashboardView, meta: { requiresAuth: true } },
   { path: "/profile", name: "profile", component: ProfileView, meta: { requiresAuth: true } },
+  // Notifications (NUEVA RUTA)
+  {
+    path: "/notifications",
+    name: "notifications",
+    component: NotificationsView,
+    meta: { requiresAuth: true },
+  },
   // Configuration
   {
     path: "/config/modules",
@@ -459,14 +469,14 @@ const routes = [
     meta: { requiresAuth: true, module: "sales" },
   },
   {
-    path: "/sales/customer/new",
-    name: "sales-customer-new",
+    path: "/sales/customers/new",
+    name: "sales-customers-new",
     component: CustomerCreateView,
     meta: { requiresAuth: true, module: "sales" },
   },
   {
-    path: "/sales/customer/:id/edit",
-    name: "sales-customer-edit",
+    path: "/sales/customers/edit/:id",
+    name: "sales-customers-edit",
     component: CustomerCreateView,
     meta: { requiresAuth: true, module: "sales" },
     props: true,
